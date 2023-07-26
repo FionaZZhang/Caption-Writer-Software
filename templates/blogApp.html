@@ -1,0 +1,62 @@
+<!-- index.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Blog Writing Web App</title>
+</head>
+<body>
+    <h1>AI Blog Writing Web App</h1>
+    <form id="blog-form">
+        <label for="draft">Draft Post:</label>
+        <textarea id="draft" name="draft" rows="5" cols="50"></textarea>
+        <br>
+        <label for="style">Style:</label>
+        <select id="style" name="style">
+            <option value="formal">Formal</option>
+            <option value="informal">Informal</option>
+        </select>
+        <br>
+        <label for="platform">Platform:</label>
+        <select id="platform" name="platform">
+            <option value="instagram">Instagram</option>
+            <option value="youtube">YouTube</option>
+            <option value="linkedin">LinkedIn</option>
+        </select>
+        <br>
+        <button type="submit">Generate</button>
+    </form>
+
+    <div id="output">
+        <!-- The generated output will be displayed here -->
+    </div>
+
+    <script>
+        const form = document.getElementById('blog-form');
+        const outputDiv = document.getElementById('output');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const inputText = form.draft.value;
+            const style = form.style.value;
+            const platform = form.platform.value;
+
+            const response = await fetch('/generate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    input_text: inputText,
+                    style: style,
+                    platform: platform
+                })
+            });
+
+            const data = await response.json();
+            outputDiv.innerHTML = `<h3>Generated Output:</h3><p>${data.output_text}</p>`;
+        });
+    </script>
+</body>
+</html>
