@@ -2,7 +2,7 @@ import openai
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 
-openai.api_key = "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"
+openai.api_key = "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"
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
@@ -40,11 +40,14 @@ def generate():
         if not input_text or not style or not platform:
             return jsonify({"error": "Please provide input text, style, and platform."}), 400
 
-        # output_text = generate_blog_post(input_text, style, platform)
-        output_text = generate_test_post(input_text, style, platform)
+        print("1")
+        output_text = generate_blog_post(input_text, style, platform)
+        print("2")
+        # output_text = generate_test_post(input_text, style, platform)
         return jsonify({"output_text": output_text}), 200
 
     except Exception as e:
+
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
