@@ -1,9 +1,11 @@
 import openai
 from flask import Flask, request, jsonify, render_template
+from flask_cors import CORS
 
 openai.api_key = "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"
 
 app = Flask(__name__)
+CORS(app, supports_credentials=True)
 
 def generate_blog_post(input_text, style, platform):
     # Use GPT-3.5 to generate the improved output
@@ -18,6 +20,10 @@ def generate_blog_post(input_text, style, platform):
     )
     print(response.choices[0].message["content"])
     return response.choices[0].message["content"]
+
+def generate_test_post(input_text, style, platform):
+    response = "This is a test output."
+    return response
 
 @app.route('/')
 def index():
@@ -34,7 +40,8 @@ def generate():
         if not input_text or not style or not platform:
             return jsonify({"error": "Please provide input text, style, and platform."}), 400
 
-        output_text = generate_blog_post(input_text, style, platform)
+        # output_text = generate_blog_post(input_text, style, platform)
+        output_text = generate_test_post(input_text, style, platform)
         return jsonify({"output_text": output_text}), 200
 
     except Exception as e:
