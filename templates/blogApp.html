@@ -1,61 +1,45 @@
-<!-- index.html -->
-
 <!DOCTYPE html>
 <html>
 <head>
-    <title>AI Blog Writing Web App</title>
+    <title>AI Caption Generator</title>
 </head>
 <body>
-    <h1>AI Blog Writing Web App</h1>
-    <form id="blog-form">
-        <label for="draft">Draft Post:</label>
-        <textarea id="draft" name="draft" rows="5" cols="50"></textarea>
+    <h1>AI Caption Generator</h1>
+    <form id="caption-form" enctype="multipart/form-data">
+        <label for="file">Image:</label>
+        <input type="file" id="file" name="file" accept="image/*">
         <br>
-        <label for="style">Style:</label>
-        <select id="style" name="style">
-            <option value="formal">Formal</option>
-            <option value="informal">Informal</option>
-        </select>
-        <br>
-        <label for="platform">Platform:</label>
-        <select id="platform" name="platform">
-            <option value="instagram">Instagram</option>
-            <option value="youtube">YouTube</option>
-            <option value="linkedin">LinkedIn</option>
-        </select>
+        <label for="user_input">User Input:</label>
+        <input type="text" id="user_input" name="user_input">
         <br>
         <button type="submit">Generate</button>
     </form>
 
     <div id="output">
-        <!-- The generated output will be displayed here -->
+        <!-- The generated caption will be displayed here -->
     </div>
 
     <script>
-        const form = document.getElementById('blog-form');
+        const form = document.getElementById('caption-form');
         const outputDiv = document.getElementById('output');
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            const inputText = form.draft.value;
-            const style = form.style.value;
-            const platform = form.platform.value;
+            const user_input = document.getElementById('user_input').value;
+            const fileInput = document.getElementById('file');
+            const formData = new FormData();
+
+            formData.append('file', fileInput.files[0]);
+            formData.append('user_input', user_input);
 
             const response = await fetch('/generate', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    input_text: inputText,
-                    style: style,
-                    platform: platform
-                })
+                body: formData
             });
 
             const data = await response.json();
-            outputDiv.innerHTML = `<h3>Generated Output:</h3><p>${data.output_text}</p>`;
+            outputDiv.innerHTML = `<h3>Generated Caption:</h3><p>${data.caption}</p>`;
         });
     </script>
 </body>
