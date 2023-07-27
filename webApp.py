@@ -1,7 +1,7 @@
 import openai
 from flask import Flask, request, jsonify, render_template
 
-openai.api_key = "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"
+openai.api_key = "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"
 
 app = Flask(__name__)
 
@@ -16,7 +16,8 @@ def generate_blog_post(input_text, style, platform):
             {"role": "user", "content": input_text}
         ]
     )
-    return response.choices[0].text.strip()
+    print(response.choices[0].message["content"])
+    return response.choices[0].message["content"]
 
 @app.route('/')
 def index():
@@ -34,7 +35,6 @@ def generate():
             return jsonify({"error": "Please provide input text, style, and platform."}), 400
 
         output_text = generate_blog_post(input_text, style, platform)
-        print(output_text)
         return jsonify({"output_text": output_text}), 200
 
     except Exception as e:
