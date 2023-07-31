@@ -6,8 +6,8 @@
 <body>
     <h1>AI Caption Generator</h1>
     <form id="caption-form" enctype="multipart/form-data">
-        <label for="file">Image:</label>
-        <input type="file" id="file" name="file" accept="image/*">
+        <label for="file">Images:</label>
+        <input type="file" id="file" name="file" accept="image/*" multiple>
         <br>
         <label for="user_input">User Input:</label>
         <input type="text" id="user_input" name="user_input">
@@ -30,7 +30,10 @@
             const fileInput = document.getElementById('file');
             const formData = new FormData();
 
-            formData.append('file', fileInput.files[0]);
+            for (const file of fileInput.files) {
+                formData.append('files', file);
+            }
+
             formData.append('user_input', user_input);
 
             const response = await fetch('/generate', {
