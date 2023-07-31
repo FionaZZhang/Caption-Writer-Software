@@ -42,6 +42,7 @@ const submitForm = async () => {
   const postData = new FormData();
   postData.append('file', imageFiles.value);
   postData.append('user_input', userInput);
+  postData.append('language', );
 
   try {
     const response = await postToBackend('http://127.0.0.1:5000/generate', postData);
