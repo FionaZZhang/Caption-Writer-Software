@@ -6,18 +6,17 @@ defineProps({
 })
 
 const platform = ref('') // Variable to store the selected platform
-const style = ref('') // Variable to store the selected style
-const generatedBlog = ref('') // the paragraph holding the generated content
+const language = ref('') // Variable to store the selected style
+const generatedBlog = ref(null) // the paragraph holding the generated content
 const imageFiles = ref([]) 
-const imagePreview = ref(null) // Variable to store the URL for image preview
 
 // Function to handle button click and set the platform
 const selectPlatform = (selectedPlatform) => {
   platform.value = selectedPlatform;
 }
 
-const selectStyle = (selectedStyle) => {
-  style.value = selectedStyle;
+const selectLanguage = (selected) => {
+  language.value = selected;
 }
 
 // Function to get the class name for the button based on the selected platform
@@ -25,8 +24,8 @@ const getButtonClassPlatform = (selectedPlatform) => {
   return platform.value === selectedPlatform ? 'focused' : ''
 }
 
-const getButtonClassStyle = (selectedStyle) => {
-  return style.value === selectedStyle ? 'focused' : ''
+const getButtonClassLanguage = (selected) => {
+  return language.value === selected ? 'focused' : ''
 }
 
 // Function to handle form submission
@@ -39,16 +38,58 @@ const submitForm = async () => {
   //   // style: style.value, 
   //   // platform: platform.value
   // };
+
+  // check if the input text is empty
+  // if (userInput.trim() === '') {
+  //   alert('Please enter some text');
+  //   return;
+  // }
+
+  // check if the platform is empty
+  if (platform.value === '') {
+    alert('Please select a platform');
+    return;
+  }
+
+  // check if the style is empty
+  if (language.value === '') {
+    alert('Please select a language');
+    return;
+  }
+
+  // check if the image file is empty
+  if (imageFiles.value.length === 0) {
+    alert('Please upload an image');
+    return;
+  }
+
+  // const postData = {
+  //   input_text: userInput,
+  //   file: imageFile.value
+  //   // style: style.value, 
+  //   // platform: platform.value
+  // };
   const postData = new FormData();
-  postData.append('file', imageFiles.value);
-  postData.append('user_input', userInput);
-  postData.append('language', );
+  for (const file of imageFiles.value){
+    console.log(file);
+    postData.append('files', file);
+  }
+  console.log(userInput)
+  postData.append('user_input', userInput.value);
+  postData.append('language', language.value);
+  postData.append("platform", platform.value);
+
+  // const loadingPlaceholder = document.getElementById('loading-placeholder');
+  // loadingPlaceholder.textContent = 'Generating...';
 
   try {
     const response = await postToBackend('http://127.0.0.1:5000/generate', postData);
     console.log(response); // Handle the response from the backend as needed
-    console.log(response.output_text); // Handle the response from the backend as needed
-    generatedBlog.value = response.caption;
+    const outputArray = splitStringIntoParts(response.caption);
+    // const testResponse = "1. A quote from a book/movie/celebrity, cite where it comes from; 2. Using only emojis; 3. An interesting word or sentence in an European language except English and Chinese, include a translation; 4. A caption that you think is appropriate. Here are the tags describing the pictures, get the vibe not the actual words: lab coat, potter's wheel, pajamas, vestment, stethoscope, silver, website, menu, envelope, crossword, plow, white. ";
+    // const outputArray = splitStringIntoParts(testResponse);
+    console.log(outputArray);
+    generatedBlog.value = outputArray;
   } catch (error) {
     console.error(error);
   }
@@ -57,6 +98,7 @@ const submitForm = async () => {
 // Function to handle the post request to the backend
 const postToBackend = async (url, data) => {
   console.log(data);
+
   try {
     const response = await fetch(url, {
       method: 'POST',
@@ -64,7 +106,8 @@ const postToBackend = async (url, data) => {
       //   'Content-Type': 'application/json'
       // },
       // body: JSON.stringify(data)
-      body: data
+      body: data,
+      mode: 'cors' 
     });
 
     if (!response.ok) {
@@ -72,6 +115,7 @@ const postToBackend = async (url, data) => {
     }
     return await response.json();
   } catch (error) {
+    // TODO: push a warning message to the user
     throw new Error('Error fetching data');
   }
 }
@@ -121,13 +165,25 @@ const createObjectURL = (file) => {
   return URL.createObjectURL(file);
 };
 
+function splitStringIntoParts(inputString) {
+  const regex = /\d+\.\s/; // Regular expression to match a number followed by a dot and a space
+  let parts = inputString.split(regex);
+  parts = parts.slice(1, parts.length)
+  console.log(parts);
+  return parts;
+}
+
+
 // Call the setupEditableDiv function when the component is mounted
-onMounted(setupEditableDiv);
+onMounted(() => {
+  setupEditableDiv;
+});
 
 </script>
 
 <template>
     <div class="container">
+      <div class="row1">
       <div class="column left">
         <div>
           <h3 style="font-style: italic;">Choose the platform👇</h3>
@@ -140,37 +196,29 @@ onMounted(setupEditableDiv);
           </button>
           <p></p>
           <button
-            @click="selectPlatform('YouTube')"
-            :class="getButtonClassPlatform('YouTube')"
-            ref="buttonYouTube"
+            @click="selectPlatform('WeChat')"
+            :class="getButtonClassPlatform('WeChat')"
+            ref="buttonWeChat"
           >
-            YouTube
-          </button>
-          <p></p>
-          <button
-            @click="selectPlatform('LinkedIn')"
-            :class="getButtonClassPlatform('LinkedIn')"
-            ref="buttonLinkedIn"
-          >
-            LinkedIn
+            WeChat
           </button>
         </div>
         <div>
-          <h3 style="font-style: italic;">Choose the style👇</h3>
+          <h3 style="font-style: italic;">Choose the language👇</h3>
           <button
-            @click="selectStyle('Informal')"
-            :class="getButtonClassStyle('Informal')"
-            ref="buttonInformal"
+            @click="selectLanguage('English')"
+            :class="getButtonClassLanguage('English')"
+            ref="buttonEnglish"
           >
-            Informal
+            English
           </button>
           <p></p>
           <button
-            @click="selectStyle('Formal')"
-            :class="getButtonClassStyle('Formal')"
-            ref="buttonFormal"
+            @click="selectLanguage('Chinese')"
+            :class="getButtonClassLanguage('Chinese')"
+            ref="buttonChinese"
           >
-            Formal
+            Chinese
           </button>
         </div>
       </div>
@@ -221,9 +269,16 @@ onMounted(setupEditableDiv);
         <!-- Display the image preview -->
         
       </div>
-      <div class="column right">
+    </div>
+    <p></p>
+    <div class="row2">
         <h3>👇Generated Blog: </h3>
-        <p>{{ generatedBlog }}</p>
+        <div v-if="generatedBlog">
+          <p class="generated-blog-bg" v-for="output in generatedBlog" :key="output">{{ output }}</p>
+        </div>
+        <div v-else>
+          <p id="loading-placeholder">Generating...</p>
+        </div>
       </div>
     </div>
 </template>

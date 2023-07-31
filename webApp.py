@@ -13,8 +13,9 @@ from webcolors import CSS3_NAMES_TO_HEX, hex_to_rgb
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
+# CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}})
 app.config['UPLOAD_FOLDER'] = './uploads'
-openai.api_key = ''
+openai.api_key = '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'
 
 # Load the pre-trained MobileNetV2 model
 model = models.mobilenet_v2(pretrained=False)
