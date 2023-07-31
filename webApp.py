@@ -14,7 +14,7 @@ from webcolors import CSS3_NAMES_TO_HEX, hex_to_rgb
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
 app.config['UPLOAD_FOLDER'] = './uploads'
-openai.api_key = ''
+openai.api_key = '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'
 
 # Load the pre-trained MobileNetV2 model
 model = models.mobilenet_v2(pretrained=False)
@@ -57,7 +57,7 @@ def analyze_image(image_path):
     image = image.unsqueeze(0)
     with torch.no_grad():
         preds = model(image)
-        _, indices = torch.topk(preds, 3)
+        _, indices = torch.topk(preds, 5)
         probs = torch.nn.functional.softmax(preds, dim=1)[0] * 100
         top_classes = [labels[idx] for idx in indices[0]]
 
@@ -79,14 +79,15 @@ def analyze_images(image_paths):
     return all_tags
 
 def generate_caption(image_tags, user_input):
-    prompt = "Here are the objects and color in the picture: " + ", ".join(image_tags) + ". " + "Here is the user's requirement: " + user_input
+    prompt = "You are a social media influencer. You need to come up with some captions for making a social media post (do not include hashtags)." + user_input + "Here are the 4 captions that you need to generate: 1. A quote from a book/movie/celebrity, cite where it comes from; 2. Using only emojis; 3. An interesting word or sentence in an European language except English and Chinese, include a translation; 4. A caption that you think is appropriate. " \
+            + "Here are the tags describing the pictures, get the vibe not the actual words: " + ", ".join(image_tags) + ". "
+    print(prompt)
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
-        temperature=0.8,
-        max_tokens=100,
+        temperature=0.9,
+        max_tokens=150,
         messages=[
-            {"role": "system", "content": "You are generating a caption (for making a wechat post) for a picture. "},
-            {"role": "user", "content": prompt}
+            {"role": "system", "content": prompt}
         ]
     )
     return response.choices[0].message["content"]
@@ -113,6 +114,10 @@ def generate():
             filepaths.append(filepath)
         image_tags = analyze_images(filepaths)
         user_input = request.form.get('user_input', '')
+        language = request.form.get('language', 'English')  # get the language from form
+        platform = request.form.get('platform', 'Instagram')  # get the platform from form
+        style = request.form.get('style', 'Formal')  # get the style from form
+        user_input = f"Response should be in {language}, caption is for the platform {platform}, and the style is {style}." + user_input
         caption = generate_caption(image_tags, user_input)
         return jsonify({"caption": caption}), 200
     except Exception as e:
