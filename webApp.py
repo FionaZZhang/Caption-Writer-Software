@@ -13,7 +13,7 @@ import json
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
 app.config['UPLOAD_FOLDER'] = './uploads'
-openai.api_key = ''
+openai.api_key = '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'
 
 
 # Load the pre-trained MobileNetV2 model
