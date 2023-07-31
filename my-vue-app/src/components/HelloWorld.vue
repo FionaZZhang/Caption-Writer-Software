@@ -75,7 +75,7 @@ const submitForm = async () => {
     postData.append('files', file);
   }
   console.log(userInput)
-  postData.append('user_input', userInput.value);
+  postData.append('user_input', userInput);
   postData.append('language', language.value);
   postData.append("platform", platform.value);
 
@@ -272,7 +272,7 @@ onMounted(() => {
     </div>
     <p></p>
     <div class="row2">
-        <h3>👇Generated Blog: </h3>
+        <h3>👇AI Generated Blog: </h3>
         <div v-if="generatedBlog">
           <p class="generated-blog-bg" v-for="output in generatedBlog" :key="output">{{ output }}</p>
         </div>
