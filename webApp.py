@@ -1,8 +1,5 @@
-import openai
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
-
-openai.api_key = "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"
 import torch
 from torchvision import models, transforms
 from PIL import Image
@@ -16,7 +13,7 @@ import json
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
 app.config['UPLOAD_FOLDER'] = './uploads'
-openai.api_key = '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'
+openai.api_key = ''
 
 
 # Load the pre-trained MobileNetV2 model
