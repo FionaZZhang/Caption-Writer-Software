@@ -8,7 +8,7 @@ defineProps({
 const platform = ref('') // Variable to store the selected platform
 const style = ref('') // Variable to store the selected style
 const generatedBlog = ref('') // the paragraph holding the generated content
-const imageFile = ref(null) 
+const imageFiles = ref([]) 
 const imagePreview = ref(null) // Variable to store the URL for image preview
 
 // Function to handle button click and set the platform
@@ -33,18 +33,21 @@ const getButtonClassStyle = (selectedStyle) => {
 const submitForm = async () => {
   const editableDiv = document.getElementById('blog-form');
   const userInput = editableDiv.textContent;
-  const postData = {
-    input_text: userInput,
-    file: imageFile.value
-    // style: style.value, 
-    // platform: platform.value
-  };
+  // const postData = {
+  //   input_text: userInput,
+  //   file: imageFile.value
+  //   // style: style.value, 
+  //   // platform: platform.value
+  // };
+  const postData = new FormData();
+  postData.append('file', imageFiles.value);
+  postData.append('user_input', userInput);
 
   try {
     const response = await postToBackend('http://127.0.0.1:5000/generate', postData);
     console.log(response); // Handle the response from the backend as needed
     console.log(response.output_text); // Handle the response from the backend as needed
-    generatedBlog.value = response.output_text;
+    generatedBlog.value = response.caption;
   } catch (error) {
     console.error(error);
   }
@@ -56,10 +59,11 @@ const postToBackend = async (url, data) => {
   try {
     const response = await fetch(url, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data)
+      // headers: {
+      //   'Content-Type': 'application/json'
+      // },
+      // body: JSON.stringify(data)
+      body: data
     });
 
     if (!response.ok) {
@@ -73,11 +77,21 @@ const postToBackend = async (url, data) => {
 
 // Function to handle image upload and show preview
 const handleImageUpload = (event) => {
-  const file = event.target.files[0];
-  imageFile.value = file;
+  const files = event.target.files;
+  if (files.length <= 9) {
+    // Create an array of image files and store it in the imageFiles ref
+    imageFiles.value = Array.from(files);
+  } else {
+    // Display an error message or take appropriate action for exceeding the file limit
+    console.error('You can only upload up to 9 images.');
+  }
+
+  // const file = event.target.files[0];
+  imageFiles.value = files;
+  console.log(files);
 
   // Create a URL for image preview
-  imagePreview.value = URL.createObjectURL(file);
+  // imagePreview.value = URL.createObjectURL(files);
 }
 // Function to handle the initial setup of the editable div
 const setupEditableDiv = () => {
@@ -100,6 +114,11 @@ const handleBlur = () => {
     editableDiv.innerHTML = 'Enter your text here ✍️'; // Add back the placeholder text if the div is empty
   }
 }
+
+// Function to create the object URL for a given file
+const createObjectURL = (file) => {
+  return URL.createObjectURL(file);
+};
 
 // Call the setupEditableDiv function when the component is mounted
 onMounted(setupEditableDiv);
@@ -174,14 +193,30 @@ onMounted(setupEditableDiv);
         <!-- <div v-if="imagePreview">
           <img :src="imagePreview" alt="Image Preview">
         </div> -->
-        <div class="image-upload">
+        <!-- <div class="image-upload">
           <label for="file-input" class="image-upload-label">
             <img v-if="imagePreview" :src="imagePreview" alt="Uploaded Image" class="image-preview">
             <div v-else class="placeholder">Upload Image</div>
           </label>
-          <input id="file-input" type="file" accept="image/*" @change="handleImageUpload">
+          <input id="file-input" type="file" accept="image/*" @change="handleImageUpload" multiple>
+        </div> -->
+        <div class="image-upload">
+          <label for="file-input" class="image-upload-label">
+            <!-- Display the uploaded images in a grid or other arrangement -->
+            <!-- <div v-for="(file, index) in imageFiles" :key="index" class="image-preview">
+              <img :src="URL.createObjectURL(file)" alt="Uploaded Image">
+            </div> -->
+            <img width="100" height="100" v-for="file in imageFiles" :key="file.name" :src="createObjectURL(file)" alt="Uploaded Image">
+            <!-- Show the "Upload Image" placeholder only if there are no images -->
+            <div v-if="imageFiles.length === 0" class="placeholder">
+              <span>Upload Image</span>
+            </div>
+          </label>
+          <input id="file-input" type="file" accept="image/*" @change="handleImageUpload" multiple>
         </div>
-        <button class="submit" @click="submitForm">Submit</button>
+        <div class="submit-cell">
+          <button class="submit" @click="submitForm">Submit</button>
+        </div>
         <!-- Display the image preview -->
         
       </div>

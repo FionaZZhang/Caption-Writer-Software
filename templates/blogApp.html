@@ -53,6 +53,8 @@
             formData.append('language', language);
             formData.append('platform', platform);
 
+            console.log(fileInput);
+
             const response = await fetch('/generate', {
                 method: 'POST',
                 body: formData
