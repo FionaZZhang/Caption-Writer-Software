@@ -14,7 +14,7 @@ from webcolors import CSS3_NAMES_TO_HEX, hex_to_rgb
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
 app.config['UPLOAD_FOLDER'] = './uploads'
-openai.api_key = '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'
+openai.api_key = ''
 
 # Load the pre-trained MobileNetV2 model
 model = models.mobilenet_v2(pretrained=False)
@@ -116,8 +116,7 @@ def generate():
         user_input = request.form.get('user_input', '')
         language = request.form.get('language', 'English')  # get the language from form
         platform = request.form.get('platform', 'Instagram')  # get the platform from form
-        style = request.form.get('style', 'Formal')  # get the style from form
-        user_input = f"Response should be in {language}, caption is for the platform {platform}, and the style is {style}." + user_input
+        user_input = f"Response should be in {language}, caption is for the platform {platform}." + user_input
         caption = generate_caption(image_tags, user_input)
         return jsonify({"caption": caption}), 200
     except Exception as e:

@@ -22,15 +22,6 @@
         <select id="platform" name="platform">
             <option value="Instagram">Instagram</option>
             <option value="WeChat">WeChat</option>
-            <option value="WeChat">Linkedin</option>
-            <!-- Add other options as needed -->
-        </select>
-        <br>
-        <label for="style">Style:</label>
-        <select id="style" name="style">
-            <option value="Formal">Informal</option>
-            <option value="Informal">Formal</option>
-            <!-- Add other options as needed -->
         </select>
         <br>
         <button type="submit">Generate</button>
@@ -51,7 +42,6 @@
             const fileInput = document.getElementById('file');
             const language = document.getElementById('language').value;
             const platform = document.getElementById('platform').value;
-            const style = document.getElementById('style').value;
 
             const formData = new FormData();
 
@@ -62,7 +52,6 @@
             formData.append('user_input', user_input);
             formData.append('language', language);
             formData.append('platform', platform);
-            formData.append('style', style);
 
             const response = await fetch('/generate', {
                 method: 'POST',
