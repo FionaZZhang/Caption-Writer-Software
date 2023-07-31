@@ -6,11 +6,32 @@
 <body>
     <h1>AI Caption Generator</h1>
     <form id="caption-form" enctype="multipart/form-data">
-        <label for="file">Image:</label>
-        <input type="file" id="file" name="file" accept="image/*">
+        <label for="file">Images:</label>
+        <input type="file" id="file" name="file" accept="image/*" multiple>
         <br>
         <label for="user_input">User Input:</label>
         <input type="text" id="user_input" name="user_input">
+        <br>
+        <label for="language">Language:</label>
+        <select id="language" name="language">
+            <option value="English">English</option>
+            <option value="Chinese">Chinese</option>
+        </select>
+        <br>
+        <label for="platform">Platform:</label>
+        <select id="platform" name="platform">
+            <option value="Instagram">Instagram</option>
+            <option value="WeChat">WeChat</option>
+            <option value="WeChat">Linkedin</option>
+            <!-- Add other options as needed -->
+        </select>
+        <br>
+        <label for="style">Style:</label>
+        <select id="style" name="style">
+            <option value="Formal">Informal</option>
+            <option value="Informal">Formal</option>
+            <!-- Add other options as needed -->
+        </select>
         <br>
         <button type="submit">Generate</button>
     </form>
@@ -28,10 +49,20 @@
 
             const user_input = document.getElementById('user_input').value;
             const fileInput = document.getElementById('file');
+            const language = document.getElementById('language').value;
+            const platform = document.getElementById('platform').value;
+            const style = document.getElementById('style').value;
+
             const formData = new FormData();
 
-            formData.append('file', fileInput.files[0]);
+            for (const file of fileInput.files) {
+                formData.append('files', file);
+            }
+
             formData.append('user_input', user_input);
+            formData.append('language', language);
+            formData.append('platform', platform);
+            formData.append('style', style);
 
             console.log(fileInput);
 
