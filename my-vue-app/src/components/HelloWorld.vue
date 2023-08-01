@@ -9,6 +9,7 @@ const platform = ref('') // Variable to store the selected platform
 const language = ref('') // Variable to store the selected style
 const generatedBlog = ref(null) // the paragraph holding the generated content
 const imageFiles = ref([]) 
+const loading = ref(false); // Variable to control loading message visibility
 
 // Function to handle button click and set the platform
 const selectPlatform = (selectedPlatform) => {
@@ -30,6 +31,9 @@ const getButtonClassLanguage = (selected) => {
 
 // Function to handle form submission
 const submitForm = async () => {
+  // Reset the generatedBlog ref to null before making the API call
+  generatedBlog.value = null;
+
   const editableDiv = document.getElementById('blog-form');
   const userInput = editableDiv.textContent;
   // const postData = {
@@ -82,6 +86,10 @@ const submitForm = async () => {
   // const loadingPlaceholder = document.getElementById('loading-placeholder');
   // loadingPlaceholder.textContent = 'Generating...';
 
+  // Show the loading message
+  loading.value = true;
+
+
   try {
     const response = await postToBackend('http://127.0.0.1:5000/generate', postData);
     console.log(response); // Handle the response from the backend as needed
@@ -92,6 +100,9 @@ const submitForm = async () => {
     generatedBlog.value = outputArray;
   } catch (error) {
     console.error(error);
+  } finally {
+    // Hide the loading message
+    loading.value = false;
   }
 }
 
@@ -277,7 +288,7 @@ onMounted(() => {
           <p class="generated-blog-bg" v-for="output in generatedBlog" :key="output">{{ output }}</p>
         </div>
         <div v-else>
-          <p id="loading-placeholder">Generating...</p>
+          <p id="loading-placeholder" v-if="loading">Loading...</p>
         </div>
       </div>
     </div>
