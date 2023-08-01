@@ -13,7 +13,7 @@ app = Flask(__name__)
 CORS(app, supports_credentials=True)
 # CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}})
 app.config['UPLOAD_FOLDER'] = './uploads'
-openai.api_key = ''
+openai.api_key = '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'
 
 # Load the pre-trained MobileNetV2 model
 model = models.mobilenet_v2(pretrained=False)
@@ -86,63 +86,110 @@ def analyze_images(image_paths):
         all_tags += image_tags
     return all_tags
 
-def generate_caption(image_tags, user_input, language, platform):
-    if language == "English":
-        background = "You are a social media influencer. You need to come up with some captions for making a social media post (do not include hashtags #). "
-        input = f"caption is for the platform {platform}. "
-        if user_input != '':
-            input += "Other requirements from the user: " + user_input + ". "
-        prompt = "Here are the 4 captions that you need to generate (response in format no. Your Response): " \
-             + "1. A quote from a book or movie or celebrity, cite where it comes from; " \
-             + "2. Using only emojis; " \
-             + "3. An interesting word or sentence in an European language except English and Chinese, include a translation; " \
-             + "4. A caption that you think is appropriate."
-        descriptors = "Here are the words describing the pictures, get the vibe not the actual words: " + ", ".join(image_tags) + ". "
-    elif language == "Chinese":
-        background = "你是一位网红。你要给一些即将发送的图片想文案。不要在文案中加话题标签。"
-        input = f"你要发送帖子的平台是 {platform}。"
-        if user_input != '':
-            input += "其他的要求: " + user_input + "。"
-        prompt = "请给出四个文案（回答请用排版：数字. 你的回答）: 1. 书或电影或名人语录中的一句话; 2. 只用表情（emojis）; 3. 欧洲小语种的一个有意思的词或者一句话，给出中文翻译; 4. 一个你觉得合适的文案。 "
-        descriptors = "这里是描述图片的一些词： " + ", ".join(image_tags) + "。用中文回答。"
-    final_prompt = background + input + prompt + descriptors
+def generate_caption(image_tags, user_input, requirements, caption, language, platform, index=None):
+    # Define the template prompts
+    prompts_english = [
+        "1. A quote from a book or movie or celebrity, cite where it comes from.",
+        "2. Using only emojis.",
+        "3. An interesting word or sentence in an European language except English and Chinese, include a translation.",
+        "4. A caption that you think is appropriate."
+    ]
 
+    prompts_chinese = [
+        "1. 书或电影或名人语录中的一句话",
+        "2. 只用表情（emojis）",
+        "3. 欧洲小语种的一个有意思的词或者一句话，给出中文翻译",
+        "4. 一个你觉得合适的文案"
+    ]
+
+    if index is not None:
+        if 0 <= index < len(prompts_english):
+            prompts_english[index] = "Please regenerate this caption."
+        if 0 <= index < len(prompts_chinese):
+            prompts_chinese[index] = "请重新生成这个文案."
+
+    # Prepare the prompt based on the language
+    if language == "English":
+        final_prompt = (
+            "You are a social media influencer. You need to come up with some captions for making a social media post (do not include hashtags #). "
+            f"Caption is for the platform {platform}. "
+            f"Other requirements from the user: {requirements if requirements else 'None'}. "
+            f"Caption provided by the user: {caption if caption else 'None'}. "
+            "Here are the 4 captions that you need to generate (response in format no. Your Response): "
+            f"{'; '.join(prompts_english)}. "
+            "Here are the words describing the pictures, get the vibe not the actual words: "
+            f"{', '.join(image_tags) if image_tags else 'None'}."
+        )
+    elif language == "Chinese":
+        final_prompt = (
+            "你是一位网红。你要给一些即将发送的图片想文案。不要在文案中加话题标签。"
+            f"你要发送帖子的平台是 {platform}。"
+            f"其他的要求: {requirements if requirements else '无'}。"
+            f"用户提供的文案: {caption if caption else '无'}。"
+            "请给出四个文案（回答请用排版：数字. 文案）: "
+            f"{'; '.join(prompts_chinese)}。 "
+            f"这里是描述图片的一些词： {', '.join(image_tags) if image_tags else '无'}。用中文回答。"
+        )
 
     print(final_prompt)
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         temperature=0.9,
-        max_tokens=150,
+        max_tokens=200,
         messages=[
             {"role": "system", "content": final_prompt}
         ]
     )
+
     return response.choices[0].message["content"]
+
 
 @app.route('/')
 def index():
     return render_template('blogApp.html')
 
+
 @app.route('/generate', methods=['POST'])
 def generate():
     try:
-        if 'files' not in request.files:
-            return jsonify({"error": "No file part"}), 400
         files = request.files.getlist('files')
-        if len(files) > 9:
-            return jsonify({"error": "Too many files. Maximum allowed is 9."}), 400
-        filepaths = []
-        for file in files:
-            filename = secure_filename(file.filename)
-            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            file.save(filepath)
-            filepaths.append(filepath)
-        image_tags = analyze_images(filepaths)
+        if files:
+            filepaths = []
+            for file in files:
+                filename = secure_filename(file.filename)
+                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                file.save(filepath)
+                filepaths.append(filepath)
+            image_tags = analyze_images(filepaths)
+        else:
+            image_tags = []
+
         user_input = request.form.get('user_input', '')
+        requirements = request.form.get('requirements', '')
+        caption = request.form.get('caption', '')
         language = request.form.get('language', 'English')
         platform = request.form.get('platform', 'Instagram')
-        caption = generate_caption(image_tags, user_input, language, platform)
-        return jsonify({"caption": caption}), 200
+        generated_caption = generate_caption(image_tags, user_input, requirements, caption, language, platform)
+
+        return jsonify({"caption": generated_caption}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/regenerate', methods=['POST'])
+def regenerate():
+    try:
+        index = int(request.form.get('index'))
+        original_request = request.json.get('original_request')
+        image_tags = original_request.get('image_tags')
+        user_input = original_request.get('user_input', '')
+        requirements = original_request.get('requirements', '')
+        caption = original_request.get('caption', '')
+        language = original_request.get('language', 'English')
+        platform = original_request.get('platform', 'Instagram')
+        new_caption = generate_caption(image_tags, user_input, requirements, caption, language, platform, index)
+
+        return jsonify({"caption": new_caption}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

@@ -117,6 +117,46 @@ button:focus-visible {
   line-height: 1.6; /* Increase line height for better readability */
 }
 
+.editable-caption {
+  /* Set a fixed width and height for the textarea */
+  width: 380px;
+  height: 70px;
+  padding: 10px;
+  min-height: 70px;
+  overflow-y: auto;
+  /* background-color: #f2f2f2; */
+  font-family: Arial, sans-serif;
+  font-size: 18px; 
+  /* font-style: italic;  */
+  color: #333;
+  border: 2px solid #ccc;
+  border-radius: 10px; 
+  outline: none; 
+  text-align: left;
+  resize: vertical; /* Allow vertical resizing of the textarea */
+  line-height: 1.6; /* Increase line height for better readability */
+}
+
+.editable-requirements {
+  /* Set a fixed width and height for the textarea */
+  width: 380px;
+  height: 70px;
+  padding: 10px;
+  min-height: 70px;
+  overflow-y: auto;
+  /* background-color: #f2f2f2; */
+  font-family: Arial, sans-serif;
+  font-size: 18px; 
+  /* font-style: italic;  */
+  color: #333;
+  border: 2px solid #ccc;
+  border-radius: 10px; 
+  outline: none; 
+  text-align: left;
+  resize: vertical; /* Allow vertical resizing of the textarea */
+  line-height: 1.6; /* Increase line height for better readability */
+}
+
 /* Style for the image preview */
 .image-preview {
   /* max-width: 100px!important;
@@ -252,6 +292,17 @@ img {
   /* color: #333; */
   /* border: 1px solid #f9f9f9; */
   border-radius: 10px; 
+}
+
+.generated-blog-button {
+  background-color: #d4aed887;
+  /* opacity: 0.5; */
+  /* color: #333; */
+  /* border: 1px solid #f9f9f9; */
+  border-radius: 10px;
+  width: 80%;
+  margin: 5px;
+  transition: opacity 0.5s;
 }
 
 .row2{

@@ -10,6 +10,9 @@ const language = ref('') // Variable to store the selected style
 const generatedBlog = ref(null) // the paragraph holding the generated content
 const imageFiles = ref([]) 
 const loading = ref(false); // Variable to control loading message visibility
+const caption = ref('');  // Variable for user input caption
+const requirements = ref(''); // Variable for additional requirements
+
 
 // Function to handle button click and set the platform
 const selectPlatform = (selectedPlatform) => {
@@ -34,12 +37,12 @@ const submitForm = async () => {
   // Reset the generatedBlog ref to null before making the API call
   generatedBlog.value = null;
 
-  const editableDiv = document.getElementById('blog-form');
-  const userInput = editableDiv.textContent;
+  // const editableDiv = document.getElementById('blog-form');
+  // const userInput = editableDiv.textContent;
   // const postData = {
   //   input_text: userInput,
   //   file: imageFile.value
-  //   // style: style.value, 
+  //   // style: style.value,
   //   // platform: platform.value
   // };
 
@@ -70,7 +73,7 @@ const submitForm = async () => {
   // const postData = {
   //   input_text: userInput,
   //   file: imageFile.value
-  //   // style: style.value, 
+  //   // style: style.value,
   //   // platform: platform.value
   // };
   const postData = new FormData();
@@ -78,10 +81,14 @@ const submitForm = async () => {
     console.log(file);
     postData.append('files', file);
   }
-  console.log(userInput)
-  postData.append('user_input', userInput);
+  // console.log(userInput)
+  console.log('requirements', requirements.value)
+  console.log('caption', caption.value)
+  // postData.append('user_input', userInput);
   postData.append('language', language.value);
   postData.append("platform", platform.value);
+  postData.append('requirements', requirements.value);
+  postData.append('caption', caption.value);
 
   // const loadingPlaceholder = document.getElementById('loading-placeholder');
   // loadingPlaceholder.textContent = 'Generating...';
@@ -118,7 +125,7 @@ const postToBackend = async (url, data) => {
       // },
       // body: JSON.stringify(data)
       body: data,
-      mode: 'cors' 
+      mode: 'cors'
     });
 
     if (!response.ok) {
@@ -128,6 +135,38 @@ const postToBackend = async (url, data) => {
   } catch (error) {
     // TODO: push a warning message to the user
     throw new Error('Error fetching data');
+  }
+}
+
+// Function to regenerate a specific caption based on its index
+const regenerateCaption = async (index) => {
+  // Only regenerate if there are already generated captions
+  if (generatedBlog.value) {
+    try {
+      const postData = new FormData();
+      postData.append('language', language.value);
+      postData.append("platform", platform.value);
+      postData.append('user_input', requirements.value);
+      postData.append('caption', generatedBlog.value[index]);
+      
+      for (const file of imageFiles.value){
+        postData.append('files', file);
+      }
+
+      // Show the loading message
+      loading.value = true;
+
+      const response = await postToBackend('http://127.0.0.1:5000/regenerate', postData);
+      const outputArray = splitStringIntoParts(response.caption);
+      
+      // Replace the regenerated caption
+      generatedBlog.value[index] = outputArray[0];
+      
+      // Hide the loading message
+      loading.value = false;
+    } catch (error) {
+      console.error(error);
+    }
   }
 }
 
@@ -149,28 +188,59 @@ const handleImageUpload = (event) => {
   // Create a URL for image preview
   // imagePreview.value = URL.createObjectURL(files);
 }
-// Function to handle the initial setup of the editable div
-const setupEditableDiv = () => {
-  const editableDiv = document.getElementById('blog-form');
-  editableDiv.innerHTML = 'Enter your text here ✍️';
+// Function to handle the initial setup of the editable caption
+const setupEditableCap = () => {
+  const editableCap = document.getElementById('caption-input');
+  editableCap.innerHTML = '(optional) enter your captions here ✍️';
 }
 
-// Function to handle when the editable div gains focus
-const handleFocus = () => {
-  const editableDiv = document.getElementById('blog-form');
-  if (editableDiv.textContent.trim() === 'Enter your text here ✍️') {
-    editableDiv.innerHTML = ''; // Remove the placeholder text when the div gains focus
+// Function to handle when the editable caption gains focus
+const handleFocusCap = () => {
+  const editableCap = document.getElementById('caption-input');
+  if (editableCap.textContent.trim() === '(optional) enter your captions here ✍️') {
+    editableCap.innerHTML = ''; // Remove the placeholder text when the div gains focus
   }
 }
 
-// Function to handle when the editable div loses focus
-const handleBlur = () => {
-  const editableDiv = document.getElementById('blog-form');
+// Function to handle when the editable caption loses focus
+const handleBlurCap = () => {
+  const editableDiv = document.getElementById('caption-input');
   if (editableDiv.textContent.trim() === '') {
-    editableDiv.innerHTML = 'Enter your text here ✍️'; // Add back the placeholder text if the div is empty
+    editableDiv.innerHTML = '(optional) enter your captions here ✍️'; // Add back the placeholder text if the div is empty
   }
 }
 
+const handleContentChangeCap = () => {
+  const editableCap = document.getElementById('caption-input');
+  caption.value = editableCap.textContent;
+}
+
+const handleContentChangeReq = () => {
+  const editableReq = document.getElementById('requirements-input');
+  requirements.value = editableReq.textContent;
+}
+
+// Function to handle the initial setup of the editable requirements
+const setupEditableReq = () => {
+  const editableReq = document.getElementById('requirements-input');
+  editableReq.innerHTML = "(optional) your requirements, eg. 'I want positive/moody captions...'";
+}
+
+// Function to handle when the editable caption gains focus
+const handleFocusReq = () => {
+  const editableReq = document.getElementById('requirements-input');
+  if (editableReq.textContent.trim() === "(optional) your requirements, eg. 'I want positive/moody captions...'") {
+    editableReq.innerHTML = ''; // Remove the placeholder text when the div gains focus
+  }
+}
+
+// Function to handle when the editable caption loses focus
+const handleBlurReq = () => {
+  const editableDiv = document.getElementById('requirements-input');
+  if (editableDiv.textContent.trim() === '') {
+    editableDiv.innerHTML = "(optional) your requirements, eg. 'I want positive/moody captions...'"; // Add back the placeholder text if the div is empty
+  }
+}
 // Function to create the object URL for a given file
 const createObjectURL = (file) => {
   return URL.createObjectURL(file);
@@ -185,9 +255,10 @@ function splitStringIntoParts(inputString) {
 }
 
 
-// Call the setupEditableDiv function when the component is mounted
+// Call the setupEditable function when the component is mounted
 onMounted(() => {
-  setupEditableDiv;
+  setupEditableCap();
+  setupEditableReq();
 });
 
 </script>
@@ -234,21 +305,34 @@ onMounted(() => {
         </div>
       </div>
       <div class="column middle">
+        <div
+          id="caption-input"
+          class="editable-caption"
+          contenteditable
+          @input="handleContentChangeCap"
+          @paste="handlePaste"
+          @focus="handleFocusCap"
+          @blur="handleBlurCap"
+        >
+        </div>
+        <br>
+        <div
+          id="requirements-input"
+          class="editable-requirements"
+          contenteditable
+          @input="handleContentChangeReq"
+          @paste="handlePaste"
+          @focus="handleFocusReq"
+          @blur="handleBlurReq"
+        >
+      </div>
+      <br>
         <!-- <textarea id="blog-form" placeholder="Enter your text here ✍️"></textarea> -->
         <!-- <textarea id="blog-form" placeholder="Enter your text here ✍️">
           {{ imageFile ? '![Uploaded Image](' + URL.createObjectURL(imageFile) + ')' : '' }}
         </textarea>
         <input type="file" accept="image/*" @change="handleImageUpload">
         <button class="submit" @click="submitForm">Submit</button> -->
-        <div
-          id="blog-form"
-          class="editable-div"
-          contenteditable
-          @input="handleContentChange"
-          @paste="handlePaste"
-          @focus="handleFocus"
-          @blur="handleBlur"
-        ></div>
         <!-- <input type="file" accept="image/*" @change="handleImageUpload"> -->
         <!-- <div v-if="imagePreview">
           <img :src="imagePreview" alt="Image Preview">
@@ -278,14 +362,14 @@ onMounted(() => {
           <button class="submit" @click="submitForm">Submit</button>
         </div>
         <!-- Display the image preview -->
-        
+
       </div>
     </div>
     <p></p>
     <div class="row2">
         <h3>👇AI Generated Blog: </h3>
         <div v-if="generatedBlog">
-          <p class="generated-blog-bg" v-for="output in generatedBlog" :key="output">{{ output }}</p>
+          <button class="generated-blog-button" v-for="output in generatedBlog" :key="output">{{ output }}</button>
         </div>
         <div v-else>
           <p id="loading-placeholder" v-if="loading">Loading...</p>
