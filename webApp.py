@@ -13,7 +13,7 @@ app = Flask(__name__)
 CORS(app, supports_credentials=True)
 # CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}})
 app.config['UPLOAD_FOLDER'] = './uploads'
-openai.api_key = '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'
+openai.api_key = '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'
 
 # Load the pre-trained MobileNetV2 model
 model = models.mobilenet_v2(pretrained=False)
@@ -144,6 +144,20 @@ def generate_caption(image_tags, user_input, requirements, caption, language, pl
     return response.choices[0].message["content"]
 
 
+def generate_new_caption(index):
+    prompt = f"再重新根据第{index}个要求生成一个caption。回答请只给出文案。"
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        temperature=0.9,
+        max_tokens=200,
+        messages=[
+            {"role": "system", "content": prompt}
+        ]
+    )
+    print(prompt)
+    print(response.choices[0].message["content"])
+    return response.choices[0].message["content"]
+
 @app.route('/')
 def index():
     return render_template('blogApp.html')
@@ -179,17 +193,9 @@ def generate():
 @app.route('/regenerate', methods=['POST'])
 def regenerate():
     try:
-        index = int(request.form.get('index'))
-        original_request = request.json.get('original_request')
-        image_tags = original_request.get('image_tags')
-        user_input = original_request.get('user_input', '')
-        requirements = original_request.get('requirements', '')
-        caption = original_request.get('caption', '')
-        language = original_request.get('language', 'English')
-        platform = original_request.get('platform', 'Instagram')
-        new_caption = generate_caption(image_tags, user_input, requirements, caption, language, platform, index)
-
-        return jsonify({"caption": new_caption}), 200
+        index = int(request.form.get('caption-index'))
+        new_caption = generate_new_caption(index)
+        return jsonify({"newcaption": new_caption}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

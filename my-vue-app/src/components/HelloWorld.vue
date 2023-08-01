@@ -140,27 +140,22 @@ const postToBackend = async (url, data) => {
 
 // Function to regenerate a specific caption based on its index
 const regenerateCaption = async (index) => {
+  console.log(index)
   // Only regenerate if there are already generated captions
   if (generatedBlog.value) {
     try {
       const postData = new FormData();
-      postData.append('language', language.value);
-      postData.append("platform", platform.value);
-      postData.append('user_input', requirements.value);
-      postData.append('caption', generatedBlog.value[index]);
-      
-      for (const file of imageFiles.value){
-        postData.append('files', file);
-      }
+      postData.append('caption-index', index + 1);
 
       // Show the loading message
+      //TODO: only show loading at the disappearing button
       loading.value = true;
 
       const response = await postToBackend('http://127.0.0.1:5000/regenerate', postData);
       const outputArray = splitStringIntoParts(response.caption);
       
       // Replace the regenerated caption
-      generatedBlog.value[index] = outputArray[0];
+      generatedBlog.value[index] = outputArray;
       
       // Hide the loading message
       loading.value = false;
@@ -369,7 +364,7 @@ onMounted(() => {
     <div class="row2">
         <h3>👇AI Generated Blog: </h3>
         <div v-if="generatedBlog">
-          <button class="generated-blog-button" v-for="output in generatedBlog" :key="output">{{ output }}</button>
+          <button class="generated-blog-button" v-for="(output, index) in generatedBlog" :key="index" @click="regenerateCaption(index)">{{ output }}</button>
         </div>
         <div v-else>
           <p id="loading-placeholder" v-if="loading">Loading...</p>
