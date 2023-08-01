@@ -27,12 +27,18 @@
         <button type="submit">Generate</button>
     </form>
 
+    <div id="loading" style="display: none;">
+        <!-- The loading message will be displayed here -->
+        Loading...
+    </div>
+
     <div id="output">
         <!-- The generated caption will be displayed here -->
     </div>
 
     <script>
         const form = document.getElementById('caption-form');
+        const loadingDiv = document.getElementById('loading');
         const outputDiv = document.getElementById('output');
 
         form.addEventListener('submit', async (e) => {
@@ -56,12 +62,19 @@
 
             console.log(fileInput);
 
+            // Show the loading message
+            loadingDiv.style.display = 'block';
+
             const response = await fetch('/generate', {
                 method: 'POST',
                 body: formData
             });
 
             const data = await response.json();
+            
+             // Hide the loading message
+             loadingDiv.style.display = 'none';
+
             outputDiv.innerHTML = `<h3>Generated Caption:</h3><p>${data.caption}</p>`;
         });
     </script>
