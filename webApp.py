@@ -13,7 +13,28 @@ app = Flask(__name__)
 CORS(app, supports_credentials=True)
 # CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}})
 app.config['UPLOAD_FOLDER'] = './uploads'
-openai.api_key = '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'
+openai.api_key = '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'
+current_caption = ''
+current_language = ''
+current_platform = ''
+current_tags = ''
+current_requirements = ''
+user_caption = ''
+
+# Define the template prompts
+prompts_english = [
+    "1. A quote from a book or movie or celebrity, cite where it comes from.",
+    "2. Using only emojis.",
+    "3. An interesting word or sentence in an European language except English and Chinese, include a translation.",
+    "4. A caption that you think is appropriate"
+]
+
+prompts_chinese = [
+    "1. 书或电影或名人语录中的一句话",
+    "2. 只用表情（emojis）",
+    "3. 欧洲小语种的一个有意思的词或者一句话，给出中文翻译",
+    "4. 一个你觉得合适的文案"
+]
 
 # Load the pre-trained MobileNetV2 model
 model = models.mobilenet_v2(pretrained=False)
@@ -86,28 +107,7 @@ def analyze_images(image_paths):
         all_tags += image_tags
     return all_tags
 
-def generate_caption(image_tags, user_input, requirements, caption, language, platform, index=None):
-    # Define the template prompts
-    prompts_english = [
-        "1. A quote from a book or movie or celebrity, cite where it comes from.",
-        "2. Using only emojis.",
-        "3. An interesting word or sentence in an European language except English and Chinese, include a translation.",
-        "4. A caption that you think is appropriate."
-    ]
-
-    prompts_chinese = [
-        "1. 书或电影或名人语录中的一句话",
-        "2. 只用表情（emojis）",
-        "3. 欧洲小语种的一个有意思的词或者一句话，给出中文翻译",
-        "4. 一个你觉得合适的文案"
-    ]
-
-    if index is not None:
-        if 0 <= index < len(prompts_english):
-            prompts_english[index] = "Please regenerate this caption."
-        if 0 <= index < len(prompts_chinese):
-            prompts_chinese[index] = "请重新生成这个文案."
-
+def generate_caption(image_tags, requirements, caption, language, platform):
     # Prepare the prompt based on the language
     if language == "English":
         final_prompt = (
@@ -120,7 +120,7 @@ def generate_caption(image_tags, user_input, requirements, caption, language, pl
             "Here are the words describing the pictures, get the vibe not the actual words: "
             f"{', '.join(image_tags) if image_tags else 'None'}."
         )
-    elif language == "Chinese":
+    else:
         final_prompt = (
             "你是一位网红。你要给一些即将发送的图片想文案。不要在文案中加话题标签。"
             f"你要发送帖子的平台是 {platform}。"
@@ -145,7 +145,28 @@ def generate_caption(image_tags, user_input, requirements, caption, language, pl
 
 
 def generate_new_caption(index):
-    prompt = f"再重新根据第{index}个要求生成一个caption。回答请只给出文案。"
+    print(current_language)
+    if current_language == 'Chinese':
+        prompt = (
+            "你是一位网红。你要给一些即将发送的图片想文案。不要在文案中加话题标签。"
+            f"你要发送帖子的平台是 {current_platform}。"
+            f"其他的要求: {current_requirements if current_requirements else '无'}。"
+            f"用户提供的文案: {user_caption if user_caption else '无'}。"
+            f"请根据第{index}条要求给出一条文案（只要一条，回答模版请用 ’{index}. 你的回答‘）: "
+            f"{'; '.join(prompts_chinese)}。 "
+            f"这里是描述图片的一些词： {', '.join(current_tags) if current_tags else '无'}。用中文回答。"
+        )
+    else:
+        prompt = (
+            "You are a social media influencer. You need to come up with some captions for making a social media post (do not include hashtags #). "
+            f"Caption is for the platform {current_platform}. "
+            f"Other requirements from the user: {current_requirements if current_requirements else 'None'}. "
+            f"Caption provided by the user: {user_caption if user_caption else 'None'}. "
+            f"Please generate one single caption according to requirement number {index}: "
+            f"{'; '.join(prompts_english)}. "
+            "Here are the words describing the pictures, get the vibe not the actual words: "
+            f"{', '.join(current_tags) if current_tags else 'None'}."
+        )
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         temperature=0.9,
@@ -165,6 +186,12 @@ def index():
 
 @app.route('/generate', methods=['POST'])
 def generate():
+    global current_caption
+    global current_language
+    global current_platform
+    global current_tags
+    global current_requirements
+    global user_caption
     try:
         files = request.files.getlist('files')
         if files:
@@ -178,13 +205,17 @@ def generate():
         else:
             image_tags = []
 
-        user_input = request.form.get('user_input', '')
         requirements = request.form.get('requirements', '')
         caption = request.form.get('caption', '')
         language = request.form.get('language', 'English')
         platform = request.form.get('platform', 'Instagram')
-        generated_caption = generate_caption(image_tags, user_input, requirements, caption, language, platform)
-
+        generated_caption = generate_caption(image_tags, requirements, caption, language, platform)
+        user_caption = caption
+        current_caption = generated_caption
+        current_language = language
+        current_platform = platform
+        current_tags = image_tags
+        current_requirements = requirements
         return jsonify({"caption": generated_caption}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500

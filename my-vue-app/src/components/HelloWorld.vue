@@ -147,18 +147,15 @@ const regenerateCaption = async (index) => {
       const postData = new FormData();
       postData.append('caption-index', index + 1);
 
-      // Show the loading message
-      //TODO: only show loading at the disappearing button
-      loading.value = true;
+      // Change button text to Loading
+      generatedBlog.value[index] = "Loading...";
 
       const response = await postToBackend('http://127.0.0.1:5000/regenerate', postData);
-      const outputArray = splitStringIntoParts(response.caption);
-      
+      const outputArray = splitStringIntoParts(response.newcaption);
+      console.log(outputArray)
       // Replace the regenerated caption
-      generatedBlog.value[index] = outputArray;
-      
-      // Hide the loading message
-      loading.value = false;
+      generatedBlog.value[index] = outputArray[0];
+
     } catch (error) {
       console.error(error);
     }
