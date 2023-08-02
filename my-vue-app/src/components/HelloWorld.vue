@@ -53,10 +53,10 @@ const submitForm = async () => {
   // }
 
   // check if the platform is empty
-  if (platform.value === '') {
-    alert('Please select a platform');
-    return;
-  }
+  // if (platform.value === '') {
+  //   alert('Please select a platform');
+  //   return;
+  // }
 
   // check if the style is empty
   if (language.value === '') {
@@ -86,7 +86,7 @@ const submitForm = async () => {
   console.log('caption', caption.value)
   // postData.append('user_input', userInput);
   postData.append('language', language.value);
-  postData.append("platform", platform.value);
+  postData.append("platform", "wechat");
   postData.append('requirements', requirements.value);
   postData.append('caption', caption.value);
 
@@ -129,6 +129,8 @@ const postToBackend = async (url, data) => {
     });
 
     if (!response.ok) {
+      console.log(response);
+      alert("Something went wrong! Please try again later.");
       throw new Error('Network response was not ok');
     }
     return await response.json();
@@ -170,11 +172,10 @@ const handleImageUpload = (event) => {
     imageFiles.value = Array.from(files);
   } else {
     // Display an error message or take appropriate action for exceeding the file limit
-    console.error('You can only upload up to 9 images.');
+    alert('You can only upload up to 9 images.');
+    imageFiles.value = Array.from(files).slice(0,9);
   }
 
-  // const file = event.target.files[0];
-  imageFiles.value = files;
   console.log(files);
 
   // Create a URL for image preview
@@ -259,7 +260,7 @@ onMounted(() => {
     <div class="container">
       <div class="row1">
       <div class="column left">
-        <div>
+        <!-- <div>
           <h3 style="font-style: italic;">Choose the platform👇</h3>
           <button
             @click="selectPlatform('Instagram')"
@@ -276,7 +277,7 @@ onMounted(() => {
           >
             WeChat
           </button>
-        </div>
+        </div> -->
         <div>
           <h3 style="font-style: italic;">Choose the language👇</h3>
           <button
