@@ -373,5 +373,60 @@ onMounted(() => {
 
 <style scoped>
 
+/* Style for the image preview */
+.image-preview {
+  /* max-width: 100px!important;
+  max-height: 200px!important; */
+  margin-top: 10px;
+}
+
+/* Style for the image upload container */
+.image-upload {
+  position: relative;
+  width: 400px;
+  /* height: 100px; */
+  border: 2px dashed #ccc;
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin-bottom: 20px;
+  margin-top: 5px;
+
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 10px; /* Add a gap between the uploaded images */
+}
+
+img {
+  max-width: 100px!important;
+  max-height: 100px!important;
+  margin-top: 10px;
+  object-fit:fill; 
+}
+
+.image-upload-label {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.image-preview {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  /* object-fit: cover; */
+}
+
+/* Adjust the width for each image container to show maximum 3 images per line */
+/* For a responsive layout, you may want to use media queries to handle different screen sizes */
+@media screen and (min-width: 768px) {
+  .image-preview {
+    flex: 0 0 calc(33.33% - 10px); /* Each image container takes 33.33% width with a 10px gap between images */
+  }
+}
 
 </style>

@@ -13,7 +13,7 @@ app = Flask(__name__)
 CORS(app, supports_credentials=True)
 # CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}})
 app.config['UPLOAD_FOLDER'] = './uploads'
-openai.api_key = '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'
+openai.api_key = ''
 current_caption = ''
 current_language = ''
 current_platform = ''
@@ -98,6 +98,7 @@ def analyze_image(image_path):
     dominant_color = get_color_name(most_frequent_color)
 
     tags = top_classes + [dominant_color]
+
     return tags
 
 def analyze_images(image_paths):
@@ -105,6 +106,10 @@ def analyze_images(image_paths):
     for image_path in image_paths:
         image_tags = analyze_image(image_path)
         all_tags += image_tags
+        if os.path.exists(image_path):
+            os.remove(image_path)
+        else:
+            print(f"The file {image_path} does not exist.")
     return all_tags
 
 def generate_caption(image_tags, requirements, caption, language, platform):
