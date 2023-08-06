@@ -12,7 +12,27 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
+
+  --duration: 20s;
+  --delay: 20s;
   
+}
+
+html {
+  background-color: black;
+  animation: shrink var(--duration) var(--delay) linear infinite;
+}
+
+body {
+  position: relative;
+  margin: 0 auto;
+  padding: 0 1rem;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  /* animation: var(--duration) var(--delay) linear infinite; */
+  transform-style: preserve-3d;
+  perspective: 25rem;
 }
 
 a {
