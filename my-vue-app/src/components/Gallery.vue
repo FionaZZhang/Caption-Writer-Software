@@ -1,24 +1,27 @@
 <template>
-  <div class="gallery">
-    <div class="image-col-left">
-      <div v-for="(image, index) in visibleImages.left" :key="index" class="image-container">
-        <img :src="image.src" class="image-left" />
-        <!-- <p class="caption">{{ image.caption }}</p> -->
+  <div>
+    <p style="font-style: italic; font-size: larger;"> Take a look at these awesome sample images we've generated for you! 😄</p>
+    <div class="gallery">
+      <div class="image-col-left">
+        <div v-for="(image, index) in visibleImages.left" :key="index" class="image-container">
+          <img :src="image.src" class="image-left" />
+          <!-- <p class="caption">{{ image.caption }}</p> -->
+        </div>
       </div>
-    </div>
-    <div class="image-col-middle">
-      <div v-for="(image, index) in visibleImages.middle" :key="index" class="image-container">
-        <img :src="image.src" class="image-middle" />
-        <!-- <p class="caption">{{ image.caption }}</p> -->
+      <div class="image-col-middle">
+        <div v-for="(image, index) in visibleImages.middle" :key="index" class="image-container">
+          <img :src="image.src" class="image-middle" />
+          <!-- <p class="caption">{{ image.caption }}</p> -->
+        </div>
       </div>
-    </div>
-    <div class="image-col-right">
-      <div v-for="(image, index) in visibleImages.right" :key="index" class="image-container">
-        <img :src="image.src" class="image-right" />
-        <!-- <p class="caption">{{ image.caption }}</p> -->
+      <div class="image-col-right">
+        <div v-for="(image, index) in visibleImages.right" :key="index" class="image-container">
+          <img :src="image.src" class="image-right" />
+          <!-- <p class="caption">{{ image.caption }}</p> -->
+        </div>
       </div>
+      <!-- <p class="gap"></p> -->
     </div>
-    <!-- <p class="gap"></p> -->
   </div>
 </template>
 

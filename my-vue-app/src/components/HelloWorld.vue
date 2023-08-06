@@ -155,9 +155,14 @@ const regenerateCaption = async (index) => {
 
       const response = await postToBackend('http://127.0.0.1:5000/regenerate', postData);
       const outputArray = splitStringIntoParts(response.newcaption);
+      console.log("newcaption: " + response.newcaption);
       console.log(outputArray)
+      if (outputArray.length > 0) {
       // Replace the regenerated caption
-      generatedBlog.value[index] = outputArray[0];
+        generatedBlog.value[index] = outputArray[0];
+      } else {
+        generatedBlog.value[index] = response.newcaption;
+      }
 
     } catch (error) {
       console.error(error);
@@ -291,6 +296,7 @@ onMounted(() => {
 
 <template>
     <div class="container">
+      <p style="font-style: italic; font-size: larger;"> Your AI Caption Writer</p>
       <div class="row1">
       <div class="column left">
         <!-- <div>

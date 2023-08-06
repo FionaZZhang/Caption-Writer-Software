@@ -15,7 +15,7 @@ from io import BytesIO
 app = Flask(__name__, static_folder='my-vue-app/dist')
 CORS(app, supports_credentials=True)
 app.config['UPLOAD_FOLDER'] = './uploads'
-openai.api_key = ''
+openai.api_key = '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'
 current_caption = ''
 current_language = ''
 current_platform = ''
@@ -234,7 +234,6 @@ def regenerate():
         global current_caption
         index = int(request.form.get('caption-index'))
         new_caption = generate_new_caption(index)
-        print(new_caption)
         current_caption = new_caption
         return jsonify({"newcaption": new_caption}), 200
     except Exception as e:
