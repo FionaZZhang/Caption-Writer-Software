@@ -13,8 +13,8 @@ from io import BytesIO
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
-app.config['UPLOAD_FOLDER'] = './uploads'
-openai.api_key = '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'
+app.config['UPLOAD_FOLDER'] = './my-vue-app/static/images'
+openai.api_key = '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'
 current_caption = ''
 current_language = ''
 current_platform = ''

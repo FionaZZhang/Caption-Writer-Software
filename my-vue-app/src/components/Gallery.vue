@@ -1,28 +1,28 @@
 <template>
-    <div class="gallery">
-      <div class="image-col-left">
-        <div v-for="(image, index) in visibleImages" :key="index" class="image-container">
-            <img :src="image.src" class="image-left" />
-            <!-- <p class="caption">{{ image.caption }}</p> -->
-        </div>
+  <div class="gallery">
+    <div class="image-col-left">
+      <div v-for="(image, index) in visibleImages.left" :key="index" class="image-container">
+        <img :src="image.src" class="image-left" />
+        <!-- <p class="caption">{{ image.caption }}</p> -->
       </div>
-      <div class="image-col-middle">
-        <div v-for="(image, index) in visibleImages" :key="index" class="image-container">
-            <img :src="image.src" class="image-middle" />
-            <!-- <p class="caption">{{ image.caption }}</p> -->
-        </div>
-      </div>
-      <div class="image-col-right">
-        <div v-for="(image, index) in visibleImages" :key="index" class="image-container">
-            <img :src="image.src" class="image-right" />
-            <!-- <p class="caption">{{ image.caption }}</p> -->
-        </div>
-      </div>
-        <!-- <p class="gap"></p> -->
     </div>
-  </template>
-  
-  <script>
+    <div class="image-col-middle">
+      <div v-for="(image, index) in visibleImages.middle" :key="index" class="image-container">
+        <img :src="image.src" class="image-middle" />
+        <!-- <p class="caption">{{ image.caption }}</p> -->
+      </div>
+    </div>
+    <div class="image-col-right">
+      <div v-for="(image, index) in visibleImages.right" :key="index" class="image-container">
+        <img :src="image.src" class="image-right" />
+        <!-- <p class="caption">{{ image.caption }}</p> -->
+      </div>
+    </div>
+    <!-- <p class="gap"></p> -->
+  </div>
+</template>
+
+<script>
 export default {
   props: {
     images: {
@@ -32,46 +32,34 @@ export default {
   },
   data() {
     return {
-      visibleImages: [], // Array to store the images visible in the gallery
-      batchSize: 5, // Number of images to load per batch
+      // images: [],
       currentPage: 0, // Current page number
+      visibleImages: {
+        left: [],
+        middle: [],
+        right: [],
+      }, // Object to store the images split into three batches
     };
   },
   created() {
-    // Load initial batch of images when the component is created
-    this.loadNextBatch();
-    // Add an event listener to the scroll event
-    window.addEventListener('scroll', this.handleScroll);
-  },
-  destroyed() {
-    // Clean up the event listener when the component is destroyed
-    window.removeEventListener('scroll', this.handleScroll);
-  },
-  methods: {
-    loadNextBatch() {
-      // Calculate the index range for the next batch of images
-      const startIndex = this.currentPage * this.batchSize;
-      const endIndex = startIndex + this.batchSize;
-
-      // Add the next batch of images to the visibleImages array
-      this.visibleImages = this.visibleImages.concat(this.images.slice(startIndex, endIndex));
-
-      // Increment the current page number
-      this.currentPage++;
-    },
-    handleScroll() {
-      // Calculate the distance between the bottom of the page and the bottom of the viewport
-      const distanceToBottom = document.documentElement.scrollHeight - (window.innerHeight + window.scrollY);
-
-      // Load the next batch of images when the user is near the bottom of the page
-      if (distanceToBottom < 200) {
-        this.loadNextBatch();
+    const totalImages = this.images.length;
+    const batchSize = Math.ceil(totalImages / 3);
+    for (let i = 0; i < totalImages; i++) {
+      const image = this.images[i];
+      if (i < batchSize) {
+        this.visibleImages.left.push(image);
+      } else if (i < batchSize * 2) {
+        this.visibleImages.middle.push(image);
+      } else {
+        this.visibleImages.right.push(image);
       }
-    },
+    }
   },
+  destroyed() {},
+  methods: {},
 };
-  </script>
-  
+</script>
+
   <style scoped>
   .gallery {
     display: inline-block;
@@ -81,7 +69,8 @@ export default {
     max-height: 500px;
     max-width: 800px;
     width: -webkit-fill-available;
-    height: -webkit-fill-available;
+    height: 500px;
+    /* height: -webkit-fill-available; */
   }
   
   .image-container {

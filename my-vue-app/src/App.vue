@@ -15,9 +15,9 @@ export default {
 
       // Sample data for the gallery (replace with your actual data)
       galleryImages: [
-        { src: './static/images/photo3.jpeg', caption: 'Image 1' },
-        { src: './static/images/photo2.jpeg', caption: 'Image 2' },
-        { src: './static/images/penguin.png', caption: 'Image 3' },
+        { src: './static/images/81686.png', caption: 'Image 1' },
+        { src: './static/images/output.png', caption: 'Image 2' },
+        { src: './static/images/Screenshot 2023-08-06 at 2.08.48 pm.png', caption: 'Image 3' },
         // Add more images and captions as needed
       ],
     };
