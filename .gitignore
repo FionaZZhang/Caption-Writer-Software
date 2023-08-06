@@ -1,3 +1,4 @@
 mobilenet_v2.pth 
 my-vue-app/.vscode
 uploads/*
+.DS_Store

@@ -16,7 +16,7 @@ from io import BytesIO
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
 app.config['UPLOAD_FOLDER'] = './uploads'
-openai.api_key = ''
+openai.api_key = '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'
 current_caption = ''
 current_language = ''
 current_platform = ''

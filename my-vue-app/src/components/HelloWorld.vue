@@ -258,6 +258,18 @@ const createObjectURL = (file) => {
   return URL.createObjectURL(file);
 };
 
+const downloadImage = () => {
+  // Check if the generatedImgUrl is available
+  if (generatedImgUrl) {
+    // Create a virtual anchor element to trigger the download
+    const link = document.createElement('a');
+    link.href = generatedImgUrl.value;
+    link.download = 'generated_image.png'; // Set the default filename for the downloaded image
+    link.target = '_blank'; // Open the link in a new tab
+    link.click(); // Programmatically click the link to trigger the download
+  }
+};
+
 function splitStringIntoParts(inputString) {
   const regex = /\d+\.\s/; // Regular expression to match a number followed by a dot and a space
   let parts = inputString.split(regex);
@@ -385,10 +397,18 @@ onMounted(() => {
           <p class="more-text"> Would you want more? Click this 👇</p>
           <button class="generated-img" @click="generate_img()">Get NFT</button>
           <img v-if="generatedImgUrl" :src="generatedImgUrl" alt="Loading..." class="genimg" />
+          <!-- <a v-if="generatedImgUrl" :href="generatedImgUrl" download="generated_image.png">
+            <button class="download-button">Download Image</button>
+          </a> -->
+          <button v-if="generatedImgUrl" class="download-button" @click="downloadImage">Download Image</button>
+          <div v-else>
+            <p id="loading-placeholder" v-if="loading">Loading...</p>
+          </div>
         </div>
         <div v-else>
           <p id="loading-placeholder" v-if="loading">Loading...</p>
         </div>
+        <p></p>
       </div>
     </div>
 </template>
@@ -435,7 +455,7 @@ img {
   max-height: 200px!important;
   margin-top: 10px;
   object-fit:fill;
-  border: 10px dashed #d592de;
+  border: 2px solid #d592de;
   border-radius: 10px;
 }
 
@@ -522,5 +542,13 @@ img {
 .more-text {
   font-style: italic;
   margin-top: 50px;
+}
+
+.download-button {
+  display: block;
+  margin: auto;
+  margin-top: 10px;
+  background: #d592de;
+  color: white;
 }
 </style>

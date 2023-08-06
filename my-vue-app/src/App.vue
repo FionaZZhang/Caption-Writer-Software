@@ -34,7 +34,7 @@ export default {
 <template>
   <div>
     <NavBar :currentPage="currentPage" @switchPage="switchPage" />
-    <h1>✨AI Blog Writer</h1>
+    <h1>🐈AI Blog Writer</h1>
     <Main v-if="currentPage === 'Main'" />
     <Gallery v-if="currentPage === 'Gallery'" :images="galleryImages" />
     
