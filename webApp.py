@@ -8,13 +8,14 @@ import openai
 import os
 from werkzeug.utils import secure_filename
 import random
+from flask import send_from_directory
 from io import BytesIO
 
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='my-vue-app/dist')
 CORS(app, supports_credentials=True)
-app.config['UPLOAD_FOLDER'] = './my-vue-app/static/images'
-openai.api_key = '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'
+app.config['UPLOAD_FOLDER'] = './uploads'
+openai.api_key = ''
 current_caption = ''
 current_language = ''
 current_platform = ''
@@ -262,7 +263,7 @@ def generate_nft():
         img = Image.open(BytesIO(response.content))
 
         # Define output directory and ensure it exists
-        output_dir = os.path.join(app.config['UPLOAD_FOLDER'], 'nft')
+        output_dir = "my-vue-app/static/images"
         os.makedirs(output_dir, exist_ok=True)
 
         # Define the output path (you might want to generate a unique filename here)
@@ -276,5 +277,15 @@ def generate_nft():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve(path):
+    if path != "" and os.path.exists(app.static_folder + '/' + path):
+        return send_from_directory(app.static_folder, path)
+    else:
+        return send_from_directory(app.static_folder, 'index.html')
+
 if __name__ == '__main__':
     app.run(debug=True)
+    # port = int(os.environ.get('PORT', 8080))
+    # app.run(host='0.0.0.0', port=port, debug=True)
