@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 import torch
 from torchvision import models, transforms
@@ -7,12 +7,12 @@ import requests
 import openai
 import os
 from werkzeug.utils import secure_filename
-from webcolors import CSS3_NAMES_TO_HEX, hex_to_rgb
 import random
+from io import BytesIO
+
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
-# CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}})
 app.config['UPLOAD_FOLDER'] = './uploads'
 openai.api_key = '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'
 current_caption = ''
@@ -22,6 +22,7 @@ current_tags = ''
 current_requirements = ''
 user_caption = ''
 current_tags_top = ''
+session_id = 0
 
 # Define the template prompts
 prompts_english = [
@@ -56,21 +57,15 @@ transform = transforms.Compose([
         std=[0.229, 0.224, 0.225]
     )])
 
-def closest_color(requested_color):
-    min_colors = {}
-    # calculate euclidean distance between the requested RGB value and all CSS3 color names,
-    # storing the difference and color name as key-value pairs in the dictionary
-    for key, name in CSS3_NAMES_TO_HEX.items():
-        r_c, g_c, b_c = hex_to_rgb(name)
-        rd = (r_c - requested_color[0]) ** 2
-        gd = (g_c - requested_color[1]) ** 2
-        bd = (b_c - requested_color[2]) ** 2
-        min_colors[(rd + gd + bd)] = key
-    return min_colors[min(min_colors.keys())]  # get the color name with the smallest Euclidean distance
-
-def get_color_name(rgb_tuple):
-    closest_name = closest_color(rgb_tuple)
-    return closest_name
+def clear_uploads(session_folder):
+    if os.path.exists(session_folder):
+        for filename in os.listdir(session_folder):
+            filepath = os.path.join(session_folder, filename)
+            try:
+                os.remove(filepath)
+            except Exception as e:
+                app.logger.error("Error deleting file %s: %s", filepath, e)
+        os.rmdir(session_folder) # remove the folder after all images inside it are removed
 
 def analyze_image(image_path):
     global current_tags_top
@@ -90,20 +85,13 @@ def analyze_image(image_path):
     image = image.unsqueeze(0)
     with torch.no_grad():
         preds = model(image)
-        _, indices = torch.topk(preds, 5)
-        probs = torch.nn.functional.softmax(preds, dim=1)[0] * 100
+        _, indices = torch.topk(preds, 3)
         top_classes = [labels[idx] for idx in indices[0]]
 
         _, indices = torch.topk(preds, 2)
         top_one_classes = [labels[idx] for idx in indices[0]]
 
-    image = Image.open(image_path)
-    image = image.resize((25, 25))
-    colors = image.getcolors(image.size[0] * image.size[1])
-    most_frequent_color = sorted(colors, key=lambda x: x[0], reverse=True)[0][1]
-    dominant_color = get_color_name(most_frequent_color)
-
-    tags = top_classes + [dominant_color]
+    tags = top_classes
     current_tags_top = top_one_classes
 
     return tags
@@ -187,11 +175,6 @@ def generate_new_caption(index):
     print(response.choices[0].message["content"])
     return response.choices[0].message["content"]
 
-@app.route('/')
-def index():
-    return render_template('blogApp.html')
-
-
 @app.route('/generate', methods=['POST'])
 def generate():
     global current_caption
@@ -200,13 +183,20 @@ def generate():
     global current_tags
     global current_requirements
     global user_caption
+    global session_id
     try:
         files = request.files.getlist('files')
+        session_folder = None
         if files:
+            # Create a unique subdirectory
+            session_id = str(random.randint(10000, 99999))
+            session_folder = os.path.join(app.config['UPLOAD_FOLDER'], session_id)
+            os.makedirs(session_folder, exist_ok=True)
+
             filepaths = []
             for file in files:
                 filename = secure_filename(file.filename)
-                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                filepath = os.path.join(session_folder, filename)
                 file.save(filepath)
                 filepaths.append(filepath)
             image_tags = analyze_images(filepaths)
@@ -224,8 +214,16 @@ def generate():
         current_platform = platform
         current_tags = image_tags
         current_requirements = requirements
+
+        # clear the session folder after use
+        if session_folder is not None:
+            clear_uploads(session_folder)
+
         return jsonify({"caption": generated_caption}), 200
     except Exception as e:
+        # clear the session folder in case of an error
+        if session_folder is not None:
+            clear_uploads(session_folder)
         return jsonify({"error": str(e)}), 500
 
 
@@ -259,11 +257,24 @@ def generate_nft():
         # Get the URL of the generated image
         image_url = image_response["data"][0]["url"]
 
-        # Return the image URL
+        # Request the image content
+        response = requests.get(image_url)
+        img = Image.open(BytesIO(response.content))
+
+        # Define output directory and ensure it exists
+        output_dir = os.path.join(app.config['UPLOAD_FOLDER'], 'nft')
+        os.makedirs(output_dir, exist_ok=True)
+
+        # Define the output path (you might want to generate a unique filename here)
+        output_path = os.path.join(output_dir, f'{session_id}.png')  # Replace 'output.png' with your unique filename
+
+        # Save the image
+        img.save(output_path)
+
+        # Return the local path of the image
         return jsonify({"image_url": image_url}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
 
 if __name__ == '__main__':
     app.run(debug=True)
