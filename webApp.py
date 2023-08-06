@@ -1,5 +1,4 @@
-from flask import Flask, request, jsonify, render_template
-import flask
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 import torch
 from torchvision import models, transforms
@@ -8,7 +7,6 @@ import requests
 import openai
 import os
 from werkzeug.utils import secure_filename
-from webcolors import CSS3_NAMES_TO_HEX, hex_to_rgb
 import random
 from io import BytesIO
 
