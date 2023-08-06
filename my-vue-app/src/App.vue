@@ -34,7 +34,8 @@ export default {
 <template>
   <div>
     <NavBar :currentPage="currentPage" @switchPage="switchPage" />
-    <h1>🐈AI Blog Writer</h1>
+    <h1 style="margin-bottom: 0px;">🐈CATBox</h1>
+    <p style="font-style: italic; font-size: larger;"> Your AI Caption Writer</p>
     <Main v-if="currentPage === 'Main'" />
     <Gallery v-if="currentPage === 'Gallery'" :images="galleryImages" />
     
