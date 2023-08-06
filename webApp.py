@@ -234,6 +234,7 @@ def regenerate():
         global current_caption
         index = int(request.form.get('caption-index'))
         new_caption = generate_new_caption(index)
+        print(new_caption)
         current_caption = new_caption
         return jsonify({"newcaption": new_caption}), 200
     except Exception as e:

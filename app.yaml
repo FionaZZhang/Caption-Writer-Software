@@ -1,0 +1,18 @@
+runtime: python39
+entrypoint: gunicorn -b :$PORT main:app
+
+instance_class: F2
+
+automatic_scaling:
+  target_cpu_utilization: 65
+  min_instances: 1
+  max_instances: 10
+
+env_variables:
+  PORT: 8080
+
+handlers:
+- url: /static
+  static_dir: my-vue-app/dist/static
+- url: /.*
+  script: auto
