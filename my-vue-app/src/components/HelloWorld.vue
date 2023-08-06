@@ -176,7 +176,7 @@ const generate_img = async () => {
       const response = await postToBackend('http://127.0.0.1:5000/generate_nft', postData);
       const imgUrl = response.image_url;
       generatedImgUrl.value = imgUrl;
-      console.log(generatedImgUrl.value)
+      console.log(generatedImgUrl.value);
     } catch (error) {
       console.error(error);
     }
@@ -382,8 +382,9 @@ onMounted(() => {
         <h3>👇AI Generated Blog: </h3>
         <div v-if="generatedBlog">
           <button class="generated-blog-button" v-for="(output, index) in generatedBlog" :key="index" @click="regenerateCaption(index)">{{ output }}</button>
+          <p class="more-text"> Would you want more? Click this 👇</p>
           <button class="generated-img" @click="generate_img()">Get NFT</button>
-          <img v-if="generatedImgUrl && generatedImgUrl.value" :src="generatedImgUrl.value" alt="Loading..." class="genimg" />
+          <img v-if="generatedImgUrl" :src="generatedImgUrl" alt="Loading..." class="genimg" />
         </div>
         <div v-else>
           <p id="loading-placeholder" v-if="loading">Loading...</p>
@@ -430,10 +431,12 @@ img {
 }
 
 .genimg {
-  max-width: 100px!important;
-  max-height: 100px!important;
+  max-width: 200px!important;
+  max-height: 200px!important;
   margin-top: 10px;
   object-fit:fill;
+  border: 10px dashed #d592de;
+  border-radius: 10px;
 }
 
 .image-upload-label {
@@ -457,4 +460,67 @@ img {
   }
 }
 
+.generated-img::before{
+  position: absolute;
+  content: '';
+  left: -2em;
+  right: -2em;
+  top: -2em;
+  bottom: -2em;
+  pointer-events: none;
+  transition: ease-in-out .5s;
+  background-repeat: no-repeat;
+  background-image: radial-gradient(circle, #d592de 20%, transparent 20%), 
+  radial-gradient(circle, #d592de 20%, transparent 20%), 
+  radial-gradient(circle, #d592de 20%, transparent 20%), 
+  radial-gradient(circle, #d592de 20%, transparent 20%), 
+  radial-gradient(circle, #d592de 20%, transparent 20%), 
+  radial-gradient(circle, #d592de 20%, transparent 20%), 
+  radial-gradient(circle, #d592de 20%, transparent 20%), 
+  radial-gradient(circle, #d592de 20%, transparent 20%), 
+  radial-gradient(circle, #d592de 20%, transparent 20%),
+  /*  */
+  radial-gradient(circle, #d592de 20%, transparent 20%), 
+  radial-gradient(circle, #d592de 20%, transparent 20%), 
+  radial-gradient(circle, #d592de 20%, transparent 20%),
+  radial-gradient(circle, #d592de 20%, transparent 20%), 
+  radial-gradient(circle, #d592de 20%, transparent 20%), 
+  radial-gradient(circle, #d592de 20%, transparent 20%), 
+  radial-gradient(circle, #d592de 20%, transparent 20%);
+  background-size: 10% 10%, 20% 20%, 15% 15%, 20% 20%, 18% 18%, 10% 10%, 15% 15%, 10% 10%, 18% 18%,
+  15% 15%, 20% 20%, 18% 18%, 20% 20%, 15% 15%, 10% 10%, 20% 20%;
+  background-position: 18% 40%, 20% 31%, 30% 30%, 40% 30%, 50% 30%, 57% 30%, 65% 30%, 80% 32%, 15% 60%,
+  83% 60%, 18% 70%, 25% 70%, 41% 70%, 50% 70%, 64% 70%, 80% 71%;
+  animation: bubbles ease-in-out .75s forwards;
+}
+
+/* .submit:active {
+  transform: scale(0.95);
+  background-color: #f3037c;
+  box-shadow: 0 2px 25px rgba(233, 30, 99, 0.5);
+} */
+.generated-img:active::before {
+  animation: none;
+  background-size: 0;
+}
+/* @keyframes bubbles {
+  0% {
+    background-position: 18% 40%, 20% 31%, 30% 30%, 40% 30%, 50% 30%, 57% 30%, 65% 30%, 80% 32%, 15% 60%,
+  83% 60%, 18% 70%, 25% 70%, 41% 70%, 50% 70%, 64% 70%, 80% 71%;
+  }
+  50% {
+    background-position: 10% 44%, 0% 20%, 15% 5%, 30% 0%, 42% 0%, 62% -2%, 75% 0%, 95% -2%, 0% 80%,
+  95% 55%, 7% 100%, 24% 100%, 41% 100%, 55% 95%, 68% 96%, 95% 100%;
+  }
+  100% {
+    background-position: 5% 44%, -5% 20%, 7% 5%, 23% 0%, 37% 0, 58% -2%, 80% 0%, 100% -2%, -5% 80%,
+  100% 55%, 2% 100%, 23% 100%, 42% 100%, 60% 95%, 70% 96%, 100% 100%;
+    background-size: 0% 0%;
+  }
+} */
+
+.more-text {
+  font-style: italic;
+  margin-top: 50px;
+}
 </style>
