@@ -13,7 +13,7 @@ const loading = ref(false); // Variable to control loading message visibility
 const caption = ref('');  // Variable for user input caption
 const requirements = ref(''); // Variable for additional requirements
 const generatedImgUrl = ref(null);
-
+const combinedImgUrl = ref(null);
 
 // Function to handle button click and set the platform
 const selectPlatform = (selectedPlatform) => {
@@ -385,8 +385,6 @@ onMounted(() => {
         <div class="submit-cell">
           <button class="submit" @click="submitForm">Submit</button>
         </div>
-        <!-- Display the image preview -->
-
       </div>
     </div>
     <p></p>
