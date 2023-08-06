@@ -455,7 +455,7 @@ img {
   max-height: 200px!important;
   margin-top: 10px;
   object-fit:fill;
-  border: 10px dashed #d592de;
+  border: 2px solid #d592de;
   border-radius: 10px;
 }
 
