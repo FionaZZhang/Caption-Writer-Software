@@ -19,7 +19,7 @@
   
   <style scoped>
   nav {
-    background-color: white;
+    /* background-color: white; */
     color: #d372df;
     padding: 10px;
   }
