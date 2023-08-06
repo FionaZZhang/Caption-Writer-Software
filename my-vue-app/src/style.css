@@ -324,6 +324,17 @@ button:focus-visible {
   transition: opacity 0.5s;
 }
 
+.generated-img {
+  background-color: #d4aed887;
+  /* opacity: 0.5; */
+  /* color: #333; */
+  /* border: 1px solid #f9f9f9; */
+  border-radius: 10px;
+  width: 80%;
+  margin: 5px;
+  transition: opacity 0.5s;
+}
+
 .row2{
   width: 50%;
   display: inline-block;

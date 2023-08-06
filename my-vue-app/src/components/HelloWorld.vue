@@ -8,10 +8,11 @@ defineProps({
 const platform = ref('') // Variable to store the selected platform
 const language = ref('') // Variable to store the selected style
 const generatedBlog = ref(null) // the paragraph holding the generated content
-const imageFiles = ref([]) 
+const imageFiles = ref([])
 const loading = ref(false); // Variable to control loading message visibility
 const caption = ref('');  // Variable for user input caption
 const requirements = ref(''); // Variable for additional requirements
+const generatedImgUrl = ref(null);
 
 
 // Function to handle button click and set the platform
@@ -158,6 +159,24 @@ const regenerateCaption = async (index) => {
       // Replace the regenerated caption
       generatedBlog.value[index] = outputArray[0];
 
+    } catch (error) {
+      console.error(error);
+    }
+  }
+}
+
+
+// Function to generate an image based on caption
+const generate_img = async () => {
+  if (generatedBlog.value) {
+    try {
+      const postData = new FormData();
+      postData.append('generate_nft', 1);
+
+      const response = await postToBackend('http://127.0.0.1:5000/generate_nft', postData);
+      const imgUrl = response.image_url;
+      generatedImgUrl.value = imgUrl;
+      console.log(generatedImgUrl.value)
     } catch (error) {
       console.error(error);
     }
@@ -363,6 +382,8 @@ onMounted(() => {
         <h3>👇AI Generated Blog: </h3>
         <div v-if="generatedBlog">
           <button class="generated-blog-button" v-for="(output, index) in generatedBlog" :key="index" @click="regenerateCaption(index)">{{ output }}</button>
+          <button class="generated-img" @click="generate_img()">Get NFT</button>
+          <img v-if="generatedImgUrl && generatedImgUrl.value" :src="generatedImgUrl.value" alt="Loading..." class="genimg" />
         </div>
         <div v-else>
           <p id="loading-placeholder" v-if="loading">Loading...</p>
@@ -405,7 +426,14 @@ img {
   max-width: 100px!important;
   max-height: 100px!important;
   margin-top: 10px;
-  object-fit:fill; 
+  object-fit:fill;
+}
+
+.genimg {
+  max-width: 100px!important;
+  max-height: 100px!important;
+  margin-top: 10px;
+  object-fit:fill;
 }
 
 .image-upload-label {

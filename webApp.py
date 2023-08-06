@@ -8,18 +8,20 @@ import openai
 import os
 from werkzeug.utils import secure_filename
 from webcolors import CSS3_NAMES_TO_HEX, hex_to_rgb
+import random
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
 # CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}})
 app.config['UPLOAD_FOLDER'] = './uploads'
-openai.api_key = ''
+openai.api_key = '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'
 current_caption = ''
 current_language = ''
 current_platform = ''
 current_tags = ''
 current_requirements = ''
 user_caption = ''
+current_tags_top = ''
 
 # Define the template prompts
 prompts_english = [
@@ -71,6 +73,7 @@ def get_color_name(rgb_tuple):
     return closest_name
 
 def analyze_image(image_path):
+    global current_tags_top
     image = Image.open(image_path)
 
     # Check if image is not jpg
@@ -91,6 +94,9 @@ def analyze_image(image_path):
         probs = torch.nn.functional.softmax(preds, dim=1)[0] * 100
         top_classes = [labels[idx] for idx in indices[0]]
 
+        _, indices = torch.topk(preds, 2)
+        top_one_classes = [labels[idx] for idx in indices[0]]
+
     image = Image.open(image_path)
     image = image.resize((25, 25))
     colors = image.getcolors(image.size[0] * image.size[1])
@@ -98,6 +104,7 @@ def analyze_image(image_path):
     dominant_color = get_color_name(most_frequent_color)
 
     tags = top_classes + [dominant_color]
+    current_tags_top = top_one_classes
 
     return tags
 
@@ -106,10 +113,6 @@ def analyze_images(image_paths):
     for image_path in image_paths:
         image_tags = analyze_image(image_path)
         all_tags += image_tags
-        if os.path.exists(image_path):
-            os.remove(image_path)
-        else:
-            print(f"The file {image_path} does not exist.")
     return all_tags
 
 def generate_caption(image_tags, requirements, caption, language, platform):
@@ -229,11 +232,38 @@ def generate():
 @app.route('/regenerate', methods=['POST'])
 def regenerate():
     try:
+        global current_caption
         index = int(request.form.get('caption-index'))
         new_caption = generate_new_caption(index)
+        current_caption = new_caption
         return jsonify({"newcaption": new_caption}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+@app.route('/generate_nft', methods=['POST'])
+def generate_nft():
+    try:
+        # Split the current_caption into individual prompts
+        prompts = f"NFT anime style art: {current_tags_top[0]}, {current_tags_top[1]}"
+
+        print(prompts)
+
+        # Generate an image using the selected prompt and the DALL-E API
+        image_response = openai.Image.create(
+            prompt=prompts,
+            n=1,
+            size="256x256",
+        )
+
+        # Get the URL of the generated image
+        image_url = image_response["data"][0]["url"]
+
+        # Return the image URL
+        return jsonify({"image_url": image_url}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 if __name__ == '__main__':
     app.run(debug=True)
