@@ -15,9 +15,15 @@ export default {
 
       // Sample data for the gallery (replace with your actual data)
       galleryImages: [
-        { src: './static/images/81686.png', caption: 'Image 1' },
-        { src: './static/images/output.png', caption: 'Image 2' },
-        { src: './static/images/Screenshot 2023-08-06 at 2.08.48 pm.png', caption: 'Image 3' },
+        { src: './static/images/29413.png', caption: 'Image 1' },
+        { src: './static/images/45332.png', caption: 'Image 2' },
+        { src: './static/images/49439.png', caption: 'Image 3' },
+        { src: './static/images/55051.png', caption: 'Image 4' },
+        { src: './static/images/55787.png', caption: 'Image 5' },
+        { src: './static/images/62084.png', caption: 'Image 6' },
+        { src: './static/images/81686.png', caption: 'Image 7' },
+        { src: './static/images/97000.png', caption: 'Image 8' },
+        { src: './static/images/69732.png', caption: 'Image 9' },
         // Add more images and captions as needed
       ],
     };

@@ -13,7 +13,7 @@ const loading = ref(false); // Variable to control loading message visibility
 const caption = ref('');  // Variable for user input caption
 const requirements = ref(''); // Variable for additional requirements
 const generatedImgUrl = ref(null);
-const combinedImgUrl = ref(null);
+const getNft = ref("Get NFT"); // Variable to control loading message visibility
 
 // Function to handle button click and set the platform
 const selectPlatform = (selectedPlatform) => {
@@ -168,6 +168,7 @@ const regenerateCaption = async (index) => {
 
 // Function to generate an image based on caption
 const generate_img = async () => {
+  getNft.value = "Loading...";
   if (generatedBlog.value) {
     try {
       const postData = new FormData();
@@ -175,6 +176,7 @@ const generate_img = async () => {
 
       const response = await postToBackend('http://127.0.0.1:5000/generate_nft', postData);
       const imgUrl = response.image_url;
+      getNft.value = "Regenerate NFT";
       generatedImgUrl.value = imgUrl;
       console.log(generatedImgUrl.value);
     } catch (error) {
@@ -393,15 +395,16 @@ onMounted(() => {
         <div v-if="generatedBlog">
           <button class="generated-blog-button" v-for="(output, index) in generatedBlog" :key="index" @click="regenerateCaption(index)">{{ output }}</button>
           <p class="more-text"> Would you want more? Click this 👇</p>
-          <button class="generated-img" @click="generate_img()">Get NFT</button>
+          <button class="generated-img" @click="generate_img()">{{ getNft }}</button>
           <img v-if="generatedImgUrl" :src="generatedImgUrl" alt="Loading..." class="genimg" />
           <!-- <a v-if="generatedImgUrl" :href="generatedImgUrl" download="generated_image.png">
             <button class="download-button">Download Image</button>
           </a> -->
+          <!-- <div v-else>
+            <p>Loading...</p>
+          </div> -->
           <button v-if="generatedImgUrl" class="download-button" @click="downloadImage">Download Image</button>
-          <div v-else>
-            <p id="loading-placeholder" v-if="loading">Loading...</p>
-          </div>
+          
         </div>
         <div v-else>
           <p id="loading-placeholder" v-if="loading">Loading...</p>

@@ -76,6 +76,9 @@ export default {
   .image-container {
     /* width: 200px;
     display: block; */
+    padding-top: 50px;
+    padding-left: 10px;
+    padding-right: 10px;
   }
   
   .image-left {
@@ -83,7 +86,7 @@ export default {
     border-radius: 10px;
     border: 3px solid #d4aed887;
     height: auto;
-    transform: translateY(100vh);
+    /* transform: translateY(100vh); */
     animation: float-up-2 12s linear infinite;
     z-index: 1;
   }
@@ -92,7 +95,7 @@ export default {
     border-radius: 10px;
     border: 3px solid #d4aed887;
     height: auto;
-    transform: translateY(100vh);
+    /* transform: translateY(100vh); */
     animation: float-up-1 10s linear infinite;
     z-index: 1;
   }
@@ -102,8 +105,8 @@ export default {
     border-radius: 10px;
     border: 3px solid #d4aed887;
     height: auto;
-    transform: translateY(100vh);
-    animation: float-up-3 12s linear infinite;
+    /* transform: translateY(100vh); */
+    animation: float-up-3 10s linear infinite;
     z-index: 1;
   }
   
@@ -157,7 +160,7 @@ img {
     transform: translateY(100vh) translateZ(-50vh);
   }
   to {
-    transform: translateY(-150vh) translateZ(-50vh);
+    transform: translateY(-100vh) translateZ(-50vh);
   }
 }
 
@@ -166,7 +169,7 @@ img {
     transform: translateY(80vh) translateZ(-25vh);
   }
   to {
-    transform: translateY(-150vh) translateZ(-25vh);
+    transform: translateY(-100vh) translateZ(-25vh);
   }
 }
 
@@ -175,7 +178,7 @@ img {
     transform: translateY(50vh);
   }
   to {
-    transform: translateY(-150vh);
+    transform: translateY(-100vh);
   }
 }
 
