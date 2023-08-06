@@ -389,7 +389,7 @@ onMounted(() => {
     </div>
     <p></p>
     <div class="row2">
-        <h3>👇AI Generated Blog: </h3>
+        <h3>👇AI Generated Caption: </h3>
         <div v-if="generatedBlog">
           <button class="generated-blog-button" v-for="(output, index) in generatedBlog" :key="index" @click="regenerateCaption(index)">{{ output }}</button>
           <p class="more-text"> Would you want more? Click this 👇</p>
