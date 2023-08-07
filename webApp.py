@@ -15,7 +15,7 @@ from io import BytesIO
 app = Flask(__name__, static_folder='my-vue-app/dist')
 CORS(app, supports_credentials=True)
 app.config['UPLOAD_FOLDER'] = './uploads'
-openai.api_key = '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'
+openai.api_key = '123'
 current_caption = ''
 current_language = ''
 current_platform = ''
@@ -243,8 +243,10 @@ def regenerate():
 @app.route('/generate_nft', methods=['POST'])
 def generate_nft():
     try:
-        # Split the current_caption into individual prompts
-        prompts = f"NFT anime style art: {current_tags_top[0]}, {current_tags_top[1]}"
+        if user_caption:
+            prompts = f"NFT anime style art: {user_caption}"
+        else:
+            prompts = f"NFT anime style art: {current_tags_top}"
 
         print(prompts)
 
